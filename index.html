@@ -1,1 +1,877 @@
 
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="MJH Jump Frenzy - Unlimited time jumping game with phases, coins, and moving obstacles.">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>🚀 MJH Jump Frenzy - Unlimited Time</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial Black', Arial, sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            border: 3px solid #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255,255,255,0.3);
+            touch-action: none;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        #score {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.4);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #ffd700;
+        }
+        #highScore {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            color: #ffd700;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        #level {
+            position: absolute;
+            top: 80px;
+            left: 25px;
+            color: #00ff88;
+            font-size: 18px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        #round {
+            position: absolute;
+            top: 110px;
+            left: 25px;
+            color: #ff6b6b;
+            font-size: 18px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        #phase {
+            position: absolute;
+            top: 140px;
+            left: 25px;
+            color: #ffaa00;
+            font-size: 18px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            color: white;
+            text-align: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .screen.active {
+            display: flex;
+        }
+        
+        #startScreen h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255,215,0,0.5);
+        }
+        #startScreen .btn-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        #gameOverScreen h2 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: #ff6b6b;
+        }
+        #winScreen h2 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: #4ecdc4;
+        }
+        #phaseCompleteScreen h2 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        #finalScore, #roundScore, #phaseScore {
+            font-size: 28px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            border-radius: 25px;
+        }
+        
+        .btn {
+            font-size: 22px;
+            padding: 18px 40px;
+            margin: 12px;
+            border: none;
+            border-radius: 35px;
+            cursor: pointer;
+            transition: all 0.3s;
+            pointer-events: auto;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        #startBtn {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            color: white;
+        }
+        #guideBtn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+        #playAgainBtn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+        #nextRoundBtn {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #333;
+        }
+        #nextPhaseBtn {
+            background: linear-gradient(45deg, #ffaa00, #ffd700);
+            color: #333;
+        }
+        .btn:hover, .btn:active {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+        }
+        
+        #guideScreen {
+            padding: 30px;
+            text-align: left;
+            max-width: 90%;
+            max-height: 90%;
+        }
+        #guideScreen h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-align: center;
+        }
+        #guideScreen h3 {
+            font-size: 24px;
+            margin: 25px 0 15px 0;
+            color: #4ecdc4;
+        }
+        #guideScreen ul {
+            margin: 10px 0 20px 30px;
+        }
+        #guideScreen li {
+            font-size: 18px;
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+        #guideScreen p {
+            font-size: 18px;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+        .guide-section {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #ffd700;
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.9);
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffd700;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 2s ease-out forwards;
+        }
+        @keyframes particleFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="ui-overlay">
+        <div id="score">Score: 0</div>
+        <div id="highScore">Best: 0</div>
+        <div id="level">Level 1</div>
+        <div id="round">Round 1</div>
+        <div id="phase">Phase 1</div>
+        <div id="instructions">👆 player ধরে ডানে-বামে মুভ করুন, চাপ দিলে জাম্প হবে ⏰ আনলিমিটেড টাইম</div>
+    </div>
+
+    <div id="startScreen" class="screen active">
+        <h1>🚀 MJH Jump Frenzy</h1>
+        <p>আনলিমিটেড টাইম - অসীম রাউন্ড!</p>
+        <p style="font-size: 16px; opacity: 0.8;">প্রতি ধাপ ১০০০+ পয়েন্ট = পরবর্তী ধাপ</p>
+        <div class="btn-row">
+            <button id="startBtn" class="btn" onclick="startNewGame()">🎮 START GAME</button>
+            <button id="guideBtn" class="btn" onclick="showGuide()">📖 গেম গাইড</button>
+        </div>
+        <p style="font-size: 16px; margin-top: 25px; opacity: 0.7;">
+            All Time Best: <span id="menuHighScore">0</span>
+        </p>
+    </div>
+
+    <div id="guideScreen" class="screen">
+        <h2>🎮 সম্পূর্ণ গেম গাইড</h2>
+        
+        <div class="guide-section">
+            <h3>🎯 খেলার উদ্দেশ্য</h3>
+            <ul>
+                <li>সবুজ প্ল্যাটফর্মে ল্যান্ড করে উপরে উঠুন</li>
+                <li>গোল্ড কয়েন সংগ্রহ করুন (৫০ পয়েন্ট প্রতি কয়েন)</li>
+                <li><strong>১০০০ পয়েন্ট</strong> = ধাপ জয় → Next Phase</li>
+                <li>১ম রাউন্ডে ১০ ধাপ, ২য় রাউন্ডে ১০ ধাপ... অসীম খেলুন!</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3>⌨️ কন্ট্রোল</h3>
+            <ul>
+                <li><strong>player ধরে টেনে</strong> বাম-ডানে মুভ করুন</li>
+                <li><strong>player-এ চাপ দিলে</strong> জাম্প হবে</li>
+                <li><strong>মোবাইল:</strong> টাচ-ড্র্যাগ ও ট্যাপ</li>
+                <li><strong>ডেস্কটপ:</strong> মাউস ড্র্যাগ ও ক্লিক</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3>⚠️ সতর্কতা</h3>
+            <ul>
+                <li><strong>লাল বাধায় সরাসরি ধাক্কা = Game Over</strong></li>
+                <li><strong>হলুদ বল দিয়ে লাল বাধায় আঘাত = ১০ পয়েন্ট</strong></li>
+                <li>নিচে পড়লে আবার জাম্প করুন</li>
+                <li>আনলিমিটেড টাইম - অসীম খেলুন</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3>📊 UI এলিমেন্টস</h3>
+            <ul>
+                <li><strong>Score:</strong> বর্তমান ধাপের পয়েন্ট</li>
+                <li><strong>Level:</strong> স্কোরের উপর ভিত্তি করে</li>
+                <li><strong>Round/Phase:</strong> কোন রাউন্ডের কোন ধাপ</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3>🏆 ধাপ সিস্টেম</h3>
+            <ul>
+                <li><strong>রাউন্ড ১ - ধাপ ১:</strong> ১০০০ পয়েন্ট</li>
+                <li><strong>রাউন্ড ১ - ধাপ ২:</strong> ১৫০০ পয়েন্ট</li>
+                <li><strong>রাউন্ড ১ - ধাপ ৩:</strong> ২০০০ পয়েন্ট</li>
+                <li>... ১ম রাউন্ডে ১০ ধাপ → ২য় রাউন্ড শুরু</li>
+                <li>প্রতি ধাপে <strong>নতুন খেলার স্টাইল</strong> আসবে</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3>💎 টিপস ও ট্রিকস</h3>
+            <ul>
+                <li>হলুদ বল দিয়ে লাল বাধায় আঘাত করুন = ১০ পয়েন্ট</li>
+                <li>কয়েন সংগ্রহ করুন = ৫০ পয়েন্ট</li>
+                <li>লাল বাধার বামে-ডানে মুভমেন্ট দেখে জাম্প করুন</li>
+                <li>প্রতি ধাপ শেষে নতুন চ্যালেঞ্জ আসবে</li>
+                <li>High Score ভাঙুন!</li>
+            </ul>
+        </div>
+
+        <button class="btn" onclick="showStartScreen()" style="margin-top: 30px; background: linear-gradient(45deg, #667eea, #764ba2); color: white;">🏠 ব্যাক টু মেনু</button>
+    </div>
+
+    <div id="gameOverScreen" class="screen">
+        <h2>💥 Game Over!</h2>
+        <div id="finalScore">Phase Score: 0</div>
+        <div style="font-size: 20px; margin: 15px 0;">
+            Round: <span id="finalRound">1</span> | Phase: <span id="finalPhase">1</span> | Level: <span id="finalLevel">1</span>
+        </div>
+        <div class="btn-row">
+            <button id="playAgainBtn" class="btn" onclick="restartRound()">🔄 Play Again</button>
+            <button id="guideBtn" class="btn" onclick="showGuide()" style="font-size: 18px; padding: 15px 25px;">📖 গাইড</button>
+        </div>
+    </div>
+
+    <div id="phaseCompleteScreen" class="screen">
+        <h2>🎉 Congratulations!</h2>
+        <p id="congratsMessage">আপনি ১ম রাউন্ডের ১ম ধাপ ধৈর্য সহকারে খেলে উত্তীর্ণ হয়েছেন!</p>
+        <div id="phaseScore">Phase Score: 0</div>
+        <div style="font-size: 20px; margin: 15px 0;">
+            Round: <span id="phaseRound">1</span> | Phase: <span id="nextPhaseNum">2</span>
+        </div>
+        <div class="btn-row">
+            <button id="nextPhaseBtn" class="btn" onclick="nextPhase()">🚀 পরবর্তী ধাপ</button>
+            <button id="playAgainBtn" class="btn" onclick="restartRound()">🔄 নতুন গেম</button>
+            <button id="guideBtn" class="btn" onclick="showGuide()" style="font-size: 18px; padding: 15px 25px;">📖 গাইড</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let gameState = 'menu';
+        let score = 0;
+        let roundScore = 0;
+        let currentRound = 1;
+        let currentPhase = 1;
+        let allTimeHighScore = localStorage.getItem('mjhHighScore') || 0;
+        let level = 1;
+        let gameSpeed = 2.5;
+        let particles = [];
+        let phaseThreshold = 1000;
+        let yellowBall = null;
+        let movingObstacles = [];
+        let draggingPlayer = false;
+        let playerDragOffsetX = 0;
+
+        const player = {
+            x: 80,
+            y: 300,
+            width: 45,
+            height: 65,
+            dy: 0,
+            jumpPower: -18,
+            grounded: false,
+            color: '#ff6b6b',
+            glow: 0
+        };
+
+        let platforms = [];
+        let coins = [];
+        let lastPlatformY = 0;
+        let platformGap = 220;
+
+        updateHighScoreDisplay();
+
+        function updateHighScoreDisplay() {
+            document.getElementById('highScore').textContent = `Best: ${allTimeHighScore}`;
+            document.getElementById('menuHighScore').textContent = allTimeHighScore;
+        }
+
+        function createParticles(x, y, count = 8) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: Math.random() * -5,
+                    life: 1
+                });
+            }
+        }
+
+        function createYellowBall() {
+            yellowBall = {
+                x: player.x + player.width/2 - 8,
+                y: player.y + player.height/2 - 8,
+                width: 16,
+                height: 16,
+                vx: 0,
+                vy: 0,
+                active: false
+            };
+        }
+
+        function showGuide() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('guideScreen').classList.add('active');
+        }
+
+        function showStartScreen() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('startScreen').classList.add('active');
+        }
+
+        function initRound() {
+            platforms = [];
+            coins = [];
+            movingObstacles = [];
+            lastPlatformY = canvas.height + 100;
+            score = 0;
+            roundScore = 0;
+            level = 1;
+            gameSpeed = 2.5 + (currentRound - 1) * 0.3;
+            platformGap = Math.max(190, 220 - (currentRound - 1) * 3);
+            yellowBall = null;
+
+            for (let i = 0; i < 15; i++) addPlatform();
+
+            createYellowBall();
+            player.y = canvas.height - 250;
+            player.dy = 0;
+            player.grounded = true;
+
+            updateUIDisplay();
+        }
+
+        function addPlatform() {
+            const width = 90 + Math.random() * 80;
+            const x = Math.random() * (canvas.width - width - 20);
+            const gapVariation = Math.random() * 60 - 30;
+            const newY = lastPlatformY - platformGap + gapVariation;
+
+            platforms.push({
+                x,
+                y: newY,
+                width,
+                height: 22,
+                color: `hsl(${120 + Math.random()*30}, 70%, 50%)`
+            });
+
+            if (Math.random() < 0.4 + currentRound * 0.02) {
+                coins.push({
+                    x: x + Math.random() * (width - 20),
+                    y: newY - 35,
+                    radius: 12,
+                    collected: false,
+                    color: '#ffd700'
+                });
+            }
+
+            const spawnChance = 0.35 + currentRound * 0.015;
+            if (Math.random() < spawnChance) {
+                const startX = x + Math.random() * Math.max(1, (width - 35));
+                movingObstacles.push({
+                    x: startX,
+                    y: newY - 65,
+                    width: 32,
+                    height: 55,
+                    color: '#ff4757',
+                    moveDirection: Math.random() < 0.5 ? 1 : -1,
+                    moveSpeed: 1.5 + currentRound * 0.1,
+                    moveRange: 40,
+                    startX: startX
+                });
+            }
+
+            lastPlatformY = newY;
+        }
+
+        function handleJump() {
+            if (gameState !== 'playing') return;
+            if (player.grounded || player.y >= canvas.height - 200) {
+                player.dy = player.jumpPower;
+                player.grounded = false;
+                createParticles(player.x + player.width/2, player.y + player.height);
+                if (yellowBall) {
+                    yellowBall.active = true;
+                    yellowBall.x = player.x + player.width/2 - 8;
+                    yellowBall.y = player.y + player.height/2 - 8;
+                    yellowBall.vx = (Math.random() - 0.5) * 8;
+                    yellowBall.vy = -12;
+                }
+            }
+        }
+
+        function update() {
+            if (gameState !== 'playing') return;
+
+            player.dy += 0.85;
+            player.y += player.dy;
+
+            if (player.y > canvas.height - player.height - 50) {
+                player.y = canvas.height - player.height - 50;
+                player.dy = 0;
+                player.grounded = true;
+            }
+
+            player.grounded = false;
+            for (let platform of platforms) {
+                if (player.x + 10 < platform.x + platform.width &&
+                    player.x + player.width - 10 > platform.x &&
+                    player.y + player.height > platform.y - 10 &&
+                    player.y + player.height < platform.y + 15 &&
+                    player.dy >= -1) {
+                    player.y = platform.y - player.height;
+                    player.dy = 0;
+                    player.grounded = true;
+                    player.glow = 0;
+                    break;
+                }
+            }
+
+            if (yellowBall && yellowBall.active) {
+                yellowBall.x += yellowBall.vx;
+                yellowBall.y += yellowBall.vy;
+                yellowBall.vy += 0.3;
+            }
+
+            for (let i = coins.length - 1; i >= 0; i--) {
+                const coin = coins[i];
+                if (!coin.collected &&
+                    Math.hypot(player.x + player.width/2 - coin.x, player.y + player.height/2 - coin.y) < 35) {
+                    coin.collected = true;
+                    roundScore += 50;
+                    score += 50;
+                    createParticles(coin.x, coin.y, 12);
+                }
+            }
+
+            for (let i = movingObstacles.length - 1; i >= 0; i--) {
+                const obs = movingObstacles[i];
+                obs.x += obs.moveDirection * obs.moveSpeed;
+                if (obs.x < obs.startX - obs.moveRange || obs.x > obs.startX + obs.moveRange) {
+                    obs.moveDirection *= -1;
+                }
+
+                if (player.x < obs.x + obs.width &&
+                    player.x + player.width > obs.x &&
+                    player.y < obs.y + obs.height &&
+                    player.y + player.height > obs.y) {
+                    gameOver();
+                    return;
+                }
+
+                if (yellowBall && yellowBall.active &&
+                    yellowBall.x < obs.x + obs.width &&
+                    yellowBall.x + yellowBall.width > obs.x &&
+                    yellowBall.y < obs.y + obs.height &&
+                    yellowBall.y + yellowBall.height > obs.y) {
+                    movingObstacles.splice(i, 1);
+                    roundScore += 10;
+                    score += 10;
+                    yellowBall.active = false;
+                    createParticles(obs.x + obs.width/2, obs.y + obs.height/2, 15);
+                }
+            }
+
+            platforms.forEach(p => p.y += gameSpeed);
+            coins.forEach(c => c.y += gameSpeed);
+            movingObstacles.forEach(o => o.y += gameSpeed);
+
+            platforms = platforms.filter(p => p.y < canvas.height + 100);
+            coins = coins.filter(c => c.y < canvas.height + 100 && !c.collected);
+            movingObstacles = movingObstacles.filter(o => o.y < canvas.height + 100);
+
+            if (platforms.length < 20 || platforms[platforms.length - 1].y > canvas.height - 400) addPlatform();
+
+            const newLevel = Math.floor(score / 500) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                gameSpeed += 0.2;
+            }
+
+            if (score >= phaseThreshold) {
+                phaseComplete();
+                return;
+            }
+
+            updateUIDisplay();
+        }
+
+        function updateUIDisplay() {
+            document.getElementById('score').textContent = `Score: ${score}`;
+            document.getElementById('level').textContent = `Level ${level}`;
+            document.getElementById('round').textContent = `Round ${currentRound}`;
+            document.getElementById('phase').textContent = `Phase ${currentPhase}`;
+        }
+
+        function draw() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawClouds();
+
+            platforms.forEach(platform => {
+                ctx.shadowColor = platform.color;
+                ctx.shadowBlur = 15;
+                ctx.fillStyle = platform.color;
+                ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+            });
+
+            coins.forEach(coin => {
+                if (!coin.collected) {
+                    ctx.save();
+                    ctx.translate(coin.x, coin.y);
+                    ctx.rotate(Date.now() * 0.01 + coin.x);
+                    ctx.shadowColor = '#ffd700';
+                    ctx.shadowBlur = 20;
+                    ctx.fillStyle = coin.color;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, coin.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            });
+
+            movingObstacles.forEach(obstacle => {
+                ctx.shadowColor = '#ff4757';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = obstacle.color;
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+
+            if (yellowBall) {
+                ctx.save();
+                ctx.shadowColor = '#ffff00';
+                ctx.shadowBlur = 15;
+                ctx.fillStyle = '#ffff00';
+                ctx.fillRect(yellowBall.x, yellowBall.y, yellowBall.width, yellowBall.height);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(yellowBall.x, yellowBall.y, yellowBall.width, yellowBall.height);
+                ctx.restore();
+            }
+
+            ctx.save();
+            ctx.shadowColor = player.color;
+            ctx.shadowBlur = 25 + Math.sin(player.glow) * 5;
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(player.x + 12, player.y + 10, 8, 8);
+            ctx.fillRect(player.x + 25, player.y + 10, 8, 8);
+            ctx.fillRect(player.x + 15, player.y + 45, 15, 6);
+            ctx.restore();
+
+            particles = particles.filter(p => {
+                p.x += p.vx * 0.1;
+                p.y += p.vy * 0.1;
+                p.vy += 0.15;
+                p.life -= 0.015;
+                return p.life > 0;
+            });
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 15;
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            const progress = Math.min(score / phaseThreshold, 1);
+            ctx.fillStyle = 'rgba(255,215,0,0.15)';
+            ctx.fillRect(20, canvas.height - 60, canvas.width - 40, 20);
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(20, canvas.height - 60, (canvas.width - 40) * progress, 20);
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${Math.floor(progress*100)}% to Phase ${currentPhase + 1}`, canvas.width/2, canvas.height - 38);
+            ctx.textAlign = 'left';
+        }
+
+        function drawClouds() {
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            for (let i = 0; i < 6; i++) {
+                const x = ((Date.now() * 0.02 + i * 250) % (canvas.width + 300)) - 150;
+                const y = 80 + i * 70 + Math.sin(Date.now() * 0.001 + i) * 10;
+                ctx.beginPath();
+                ctx.arc(x, y, 45, 0, Math.PI * 2);
+                ctx.arc(x + 55, y, 55, 0, Math.PI * 2);
+                ctx.arc(x + 110, y, 45, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function startNewGame() {
+            gameState = 'playing';
+            currentRound = 1;
+            currentPhase = 1;
+            phaseThreshold = 1000;
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            initRound();
+        }
+
+        function gameOver() {
+            gameState = 'gameover';
+            if (roundScore > allTimeHighScore) {
+                allTimeHighScore = roundScore;
+                localStorage.setItem('mjhHighScore', allTimeHighScore);
+                updateHighScoreDisplay();
+            }
+            document.getElementById('finalScore').textContent = `Phase Score: ${roundScore}`;
+            document.getElementById('finalRound').textContent = currentRound;
+            document.getElementById('finalPhase').textContent = currentPhase;
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('gameOverScreen').classList.add('active');
+        }
+
+        function phaseComplete() {
+            gameState = 'phasecomplete';
+            if (roundScore > allTimeHighScore) {
+                allTimeHighScore = roundScore;
+                localStorage.setItem('mjhHighScore', allTimeHighScore);
+                updateHighScoreDisplay();
+            }
+            document.getElementById('phaseScore').textContent = `Phase Score: ${roundScore}`;
+            document.getElementById('phaseRound').textContent = currentRound;
+            document.getElementById('nextPhaseNum').textContent = currentPhase + 1;
+            document.getElementById('congratsMessage').textContent = `আপনি ${currentRound} রাউন্ডের ${currentPhase} ধাপ ধৈর্য সহকারে খেলে উত্তীর্ণ হয়েছেন, এখন পরবর্তী ধাপ শুরু করার আমন্ত্রণ জানাচ্ছি`;
+            document.getElementById('phaseCompleteScreen').classList.add('active');
+        }
+
+        function nextPhase() {
+            currentPhase++;
+            if (currentPhase > 10) {
+                currentRound++;
+                currentPhase = 1;
+            }
+            phaseThreshold = 1000 + (currentPhase - 1) * 500 + (currentRound - 1) * 5000;
+            gameState = 'playing';
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            initRound();
+        }
+
+        function restartRound() {
+            gameState = 'menu';
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('startScreen').classList.add('active');
+        }
+
+        canvas.addEventListener('pointerdown', (e) => {
+            if (gameState !== 'playing') return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            if (x >= player.x && x <= player.x + player.width && y >= player.y && y <= player.y + player.height) {
+                draggingPlayer = true;
+                playerDragOffsetX = x - player.x;
+                canvas.setPointerCapture(e.pointerId);
+            } else {
+                handleJump();
+            }
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            if (!draggingPlayer || gameState !== 'playing') return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            let newX = x - playerDragOffsetX;
+            newX = Math.max(0, Math.min(canvas.width - player.width, newX));
+            player.x = newX;
+            if (yellowBall && !yellowBall.active) {
+                yellowBall.x = player.x + player.width / 2 - 8;
+            }
+        });
+
+        canvas.addEventListener('pointerup', (e) => {
+            if (draggingPlayer) {
+                draggingPlayer = false;
+                handleJump();
+            }
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('pointercancel', () => {
+            draggingPlayer = false;
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
