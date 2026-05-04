@@ -1,1 +1,74 @@
-
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#667eea">
+  <title>Offline - MJH Jump Frenzy</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      text-align: center;
+      padding: 24px;
+    }
+    .card {
+      max-width: 520px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(6px);
+    }
+    h1 {
+      margin: 0 0 12px;
+      color: #ffd700;
+      font-size: 34px;
+    }
+    p {
+      margin: 10px 0;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .small {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    button {
+      margin-top: 18px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(45deg, #ffd700, #ffed4a);
+      color: #333;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
+    .icon {
+      font-size: 58px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📴</div>
+    <h1>You are offline</h1>
+    <p>ইন্টারনেট সংযোগ নেই, তাই গেমটি এখন লোড করা যাচ্ছে না।</p>
+    <p>সংযোগ ফিরে এলে আবার চেষ্টা করুন।</p>
+    <button type="button" onclick="location.reload()">Reload</button>
+    <p class="small">MJH Jump Frenzy</p>
+  </div>
+</body>
+</html>
