@@ -1,8 +1,9 @@
 {
+  "id": "/MJH-Jump-Frenzy/",
   "name": "MJH Jump Frenzy",
   "short_name": "Jump Frenzy",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/MJH-Jump-Frenzy/",
+  "scope": "/MJH-Jump-Frenzy/",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
