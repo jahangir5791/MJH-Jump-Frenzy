@@ -1,4 +1,4 @@
-const CACHE_NAME = "mjh-jump-frenzy-v1";
+const CACHE_NAME = "mjh-jump-frenzy-v2";
 const OFFLINE_URL = "./offline.html";
 
 const APP_SHELL = [
@@ -22,9 +22,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
-        })
+        keys.map((key) => (key !== CACHE_NAME ? caches.delete(key) : Promise.resolve()))
       )
     )
   );
@@ -40,6 +38,9 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).catch(() => caches.match(OFFLINE_URL));
+    })
   );
 });
