@@ -1,4 +1,4 @@
-const CACHE_NAME = "mjh-jump-frenzy-v2";
+const CACHE_NAME = "mjh-jump-frenzy-v1";
 const OFFLINE_URL = "./offline.html";
 
 const APP_SHELL = [
