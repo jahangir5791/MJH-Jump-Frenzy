@@ -191,9 +191,12 @@
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+
         let gameState = 'menu'; let score = 0; let roundScore = 0; let currentRound = 1; let currentPhase = 1; let allTimeHighScore = localStorage.getItem('mjhHighScore') || 0; let level = 1; let gameSpeed = 2.5; let particles = []; let phaseThreshold = 1000; let yellowBall = null; let movingObstacles = []; let draggingPlayer = false; let playerDragOffsetX = 0;
+
         const player = { x: 80, y: 300, width: 56, height: 72, dy: 0, jumpPower: -18, grounded: false, glow: 0, bob: 0 };
         let platforms = []; let coins = []; let lastPlatformY = 0; let platformGap = 220;
+
         const playerImg = new Image();
         playerImg.src = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" width="128" height="160" viewBox="0 0 128 160">
@@ -223,14 +226,47 @@
             <path d="M54 44 Q64 38 74 44" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
           </g>
         </svg>`);
+
         updateHighScoreDisplay();
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioEnabled = false;
+
+        function unlockAudio() {
+            if (!audioEnabled && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            audioEnabled = true;
+        }
+
+        function playTone(freq, duration, type = 'sine', gainValue = 0.08) {
+            if (!audioEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.value = gainValue;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playJumpSound() { playTone(520, 0.09, 'square', 0.05); setTimeout(() => playTone(760, 0.08, 'square', 0.04), 60); }
+        function playCoinSound() { playTone(880, 0.06, 'triangle', 0.06); setTimeout(() => playTone(1320, 0.05, 'triangle', 0.05), 50); }
+        function playHitSound() { playTone(180, 0.16, 'sawtooth', 0.08); setTimeout(() => playTone(120, 0.14, 'sawtooth', 0.08), 90); }
+        function playPhaseSound() { playTone(660, 0.12, 'sine', 0.06); setTimeout(() => playTone(880, 0.12, 'sine', 0.06), 120); setTimeout(() => playTone(990, 0.16, 'sine', 0.06), 240); }
+        function playGameOverSound() { playTone(240, 0.18, 'square', 0.07); setTimeout(() => playTone(160, 0.22, 'square', 0.08), 120); setTimeout(() => playTone(110, 0.28, 'square', 0.08), 260); }
+        function playClickSound() { playTone(420, 0.04, 'sine', 0.03); }
+
         function updateHighScoreDisplay() { document.getElementById('highScore').textContent = `Best: ${allTimeHighScore}`; document.getElementById('menuHighScore').textContent = allTimeHighScore; }
         function createParticles(x, y, count = 8) { for (let i = 0; i < count; i++) particles.push({ x, y, vx: (Math.random() - 0.5) * 10, vy: Math.random() * -5, life: 1 }); }
         function createYellowBall() { yellowBall = { x: player.x + player.width/2 - 8, y: player.y + player.height/2 - 8, width: 16, height: 16, vx: 0, vy: 0, active: false }; }
-        function showGuide() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('guideScreen').classList.add('active'); }
-        function showStartScreen() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('startScreen').classList.add('active'); }
+        function showGuide() { playClickSound(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('guideScreen').classList.add('active'); }
+        function showStartScreen() { playClickSound(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('startScreen').classList.add('active'); }
         function calcThreshold(roundNum, phaseNum) { return 1000 + (phaseNum - 1) * 500 + (roundNum - 1) * 5000; }
         function calcDifficulty(roundNum, phaseNum) { return (roundNum - 1) * 10 + (phaseNum - 1); }
+
         function initRound() {
             platforms = []; coins = []; movingObstacles = []; lastPlatformY = canvas.height + 100; score = 0; roundScore = 0; level = 1;
             const d = calcDifficulty(currentRound, currentPhase);
@@ -243,6 +279,7 @@
             player.y = canvas.height - 250; player.dy = 0; player.grounded = true;
             updateUIDisplay();
         }
+
         function addPlatform() {
             const d = calcDifficulty(currentRound, currentPhase);
             const width = Math.max(55, 170 - d * 1.2 + Math.random() * 40);
@@ -259,7 +296,16 @@
             }
             lastPlatformY = newY;
         }
-        function handleJump() { if (gameState !== 'playing') return; if (player.grounded || player.y >= canvas.height - 200) { player.dy = player.jumpPower; player.grounded = false; createParticles(player.x + player.width/2, player.y + player.height); if (yellowBall) { yellowBall.active = true; yellowBall.x = player.x + player.width/2 - 8; yellowBall.y = player.y + player.height/2 - 8; yellowBall.vx = (Math.random() - 0.5) * 8; yellowBall.vy = -12; } } }
+
+        function handleJump() {
+            if (gameState !== 'playing') return;
+            if (player.grounded || player.y >= canvas.height - 200) {
+                playJumpSound();
+                player.dy = player.jumpPower; player.grounded = false; createParticles(player.x + player.width/2, player.y + player.height);
+                if (yellowBall) { yellowBall.active = true; yellowBall.x = player.x + player.width/2 - 8; yellowBall.y = player.y + player.height/2 - 8; yellowBall.vx = (Math.random() - 0.5) * 8; yellowBall.vy = -12; }
+            }
+        }
+
         function update() {
             if (gameState !== 'playing') return;
             player.dy += 0.85; player.y += player.dy;
@@ -272,13 +318,13 @@
             if (yellowBall && yellowBall.active) { yellowBall.x += yellowBall.vx; yellowBall.y += yellowBall.vy; yellowBall.vy += 0.3; }
             for (let i = coins.length - 1; i >= 0; i--) {
                 const coin = coins[i];
-                if (!coin.collected && Math.hypot(player.x + player.width/2 - coin.x, player.y + player.height/2 - coin.y) < 35) { coin.collected = true; roundScore += 50; score += 50; createParticles(coin.x, coin.y, 12); }
+                if (!coin.collected && Math.hypot(player.x + player.width/2 - coin.x, player.y + player.height/2 - coin.y) < 35) { coin.collected = true; roundScore += 50; score += 50; playCoinSound(); createParticles(coin.x, coin.y, 12); }
             }
             for (let i = movingObstacles.length - 1; i >= 0; i--) {
                 const obs = movingObstacles[i]; obs.x += obs.moveDirection * obs.moveSpeed;
                 if (obs.x < obs.startX - obs.moveRange || obs.x > obs.startX + obs.moveRange) obs.moveDirection *= -1;
-                if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) { gameOver(); return; }
-                if (yellowBall && yellowBall.active && yellowBall.x < obs.x + obs.width && yellowBall.x + yellowBall.width > obs.x && yellowBall.y < obs.y + obs.height && yellowBall.y + yellowBall.height > obs.y) { movingObstacles.splice(i, 1); roundScore += 10; score += 10; yellowBall.active = false; createParticles(obs.x + obs.width/2, obs.y + obs.height/2, 15); }
+                if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) { playHitSound(); gameOver(); return; }
+                if (yellowBall && yellowBall.active && yellowBall.x < obs.x + obs.width && yellowBall.x + yellowBall.width > obs.x && yellowBall.y < obs.y + obs.height && yellowBall.y + yellowBall.height > obs.y) { movingObstacles.splice(i, 1); roundScore += 10; score += 10; yellowBall.active = false; playHitSound(); createParticles(obs.x + obs.width/2, obs.y + obs.height/2, 15); }
             }
             platforms.forEach(p => p.y += gameSpeed); coins.forEach(c => c.y += gameSpeed); movingObstacles.forEach(o => o.y += gameSpeed);
             platforms = platforms.filter(p => p.y < canvas.height + 100); coins = coins.filter(c => c.y < canvas.height + 100 && !c.collected); movingObstacles = movingObstacles.filter(o => o.y < canvas.height + 100);
@@ -287,6 +333,7 @@
             if (score >= phaseThreshold) { phaseComplete(); return; }
             updateUIDisplay();
         }
+
         function updateUIDisplay() { document.getElementById('score').textContent = `Score: ${score}`; document.getElementById('level').textContent = `Level ${level}`; document.getElementById('round').textContent = `Round ${currentRound}`; document.getElementById('phase').textContent = `Phase ${currentPhase}`; }
         function drawPlayerImage() {
             const w = player.width;
@@ -311,15 +358,19 @@
             const progress = Math.min(score / phaseThreshold, 1); ctx.fillStyle = 'rgba(255,215,0,0.15)'; ctx.fillRect(20, canvas.height - 60, canvas.width - 40, 20); ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 10; ctx.fillStyle = '#ffd700'; ctx.fillRect(20, canvas.height - 60, (canvas.width - 40) * progress, 20); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center'; ctx.fillText(`${Math.floor(progress*100)}% to Phase ${currentPhase + 1}`, canvas.width/2, canvas.height - 38); ctx.textAlign = 'left';
         }
         function drawClouds() { ctx.fillStyle = 'rgba(255,255,255,0.4)'; for (let i = 0; i < 6; i++) { const x = ((Date.now() * 0.02 + i * 250) % (canvas.width + 300)) - 150; const y = 80 + i * 70 + Math.sin(Date.now() * 0.001 + i) * 10; ctx.beginPath(); ctx.arc(x, y, 45, 0, Math.PI * 2); ctx.arc(x + 55, y, 55, 0, Math.PI * 2); ctx.arc(x + 110, y, 45, 0, Math.PI * 2); ctx.fill(); } }
-        function startNewGame() { gameState = 'playing'; currentRound = 1; currentPhase = 1; phaseThreshold = 1000; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); initRound(); }
-        function gameOver() { gameState = 'gameover'; if (roundScore > allTimeHighScore) { allTimeHighScore = roundScore; localStorage.setItem('mjhHighScore', allTimeHighScore); updateHighScoreDisplay(); } document.getElementById('finalScore').textContent = `Phase Score: ${roundScore}`; document.getElementById('finalRound').textContent = currentRound; document.getElementById('finalPhase').textContent = currentPhase; document.getElementById('finalLevel').textContent = level; document.getElementById('gameOverScreen').classList.add('active'); }
-        function phaseComplete() { gameState = 'phasecomplete'; if (roundScore > allTimeHighScore) { allTimeHighScore = roundScore; localStorage.setItem('mjhHighScore', allTimeHighScore); updateHighScoreDisplay(); } document.getElementById('phaseScore').textContent = `Phase Score: ${roundScore}`; document.getElementById('phaseRound').textContent = currentRound; document.getElementById('nextPhaseNum').textContent = currentPhase + 1; document.getElementById('congratsMessage').textContent = `আপনি ${currentRound} রাউন্ডের ${currentPhase} ধাপ ধৈর্য সহকারে খেলে উত্তীর্ণ হয়েছেন, এখন পরবর্তী ধাপ শুরু করার আমন্ত্রণ জানাচ্ছি`; document.getElementById('phaseCompleteScreen').classList.add('active'); }
-        function nextPhase() { currentPhase++; if (currentPhase > 10) { currentRound++; currentPhase = 1; } if (currentRound > 10) { currentRound = 10; currentPhase = 10; } gameState = 'playing'; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); initRound(); }
-        function restartRound() { gameState = 'menu'; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('startScreen').classList.add('active'); }
-        canvas.addEventListener('pointerdown', (e) => { if (gameState !== 'playing') return; const rect = canvas.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; if (x >= player.x && x <= player.x + player.width && y >= player.y && y <= player.y + player.height) { draggingPlayer = true; playerDragOffsetX = x - player.x; canvas.setPointerCapture(e.pointerId); } else { handleJump(); } e.preventDefault(); });
+        function startNewGame() { unlockAudio(); playClickSound(); gameState = 'playing'; currentRound = 1; currentPhase = 1; phaseThreshold = 1000; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); initRound(); }
+        function gameOver() { gameState = 'gameover'; playGameOverSound(); if (roundScore > allTimeHighScore) { allTimeHighScore = roundScore; localStorage.setItem('mjhHighScore', allTimeHighScore); updateHighScoreDisplay(); } document.getElementById('finalScore').textContent = `Phase Score: ${roundScore}`; document.getElementById('finalRound').textContent = currentRound; document.getElementById('finalPhase').textContent = currentPhase; document.getElementById('finalLevel').textContent = level; document.getElementById('gameOverScreen').classList.add('active'); }
+        function phaseComplete() { gameState = 'phasecomplete'; playPhaseSound(); if (roundScore > allTimeHighScore) { allTimeHighScore = roundScore; localStorage.setItem('mjhHighScore', allTimeHighScore); updateHighScoreDisplay(); } document.getElementById('phaseScore').textContent = `Phase Score: ${roundScore}`; document.getElementById('phaseRound').textContent = currentRound; document.getElementById('nextPhaseNum').textContent = currentPhase + 1; document.getElementById('congratsMessage').textContent = `আপনি ${currentRound} রাউন্ডের ${currentPhase} ধাপ ধৈর্য সহকারে খেলে উত্তীর্ণ হয়েছেন, এখন পরবর্তী ধাপ শুরু করার আমন্ত্রণ জানাচ্ছি`; document.getElementById('phaseCompleteScreen').classList.add('active'); }
+        function nextPhase() { unlockAudio(); playClickSound(); currentPhase++; if (currentPhase > 10) { currentRound++; currentPhase = 1; } if (currentRound > 10) { currentRound = 10; currentPhase = 10; } gameState = 'playing'; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); initRound(); }
+        function restartRound() { unlockAudio(); playClickSound(); gameState = 'menu'; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('startScreen').classList.add('active'); }
+
+        canvas.addEventListener('pointerdown', (e) => { unlockAudio(); if (gameState !== 'playing') return; const rect = canvas.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; if (x >= player.x && x <= player.x + player.width && y >= player.y && y <= player.y + player.height) { draggingPlayer = true; playerDragOffsetX = x - player.x; canvas.setPointerCapture(e.pointerId); } else { handleJump(); } e.preventDefault(); });
         canvas.addEventListener('pointermove', (e) => { if (!draggingPlayer || gameState !== 'playing') return; const rect = canvas.getBoundingClientRect(); const x = e.clientX - rect.left; let newX = x - playerDragOffsetX; newX = Math.max(0, Math.min(canvas.width - player.width, newX)); player.x = newX; if (yellowBall && !yellowBall.active) yellowBall.x = player.x + player.width / 2 - 8; });
         canvas.addEventListener('pointerup', (e) => { if (draggingPlayer) { draggingPlayer = false; handleJump(); } e.preventDefault(); });
         canvas.addEventListener('pointercancel', () => { draggingPlayer = false; });
+
+        document.querySelectorAll('.btn').forEach(btn => btn.addEventListener('click', unlockAudio));
+
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
         function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
         gameLoop();
