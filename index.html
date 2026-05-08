@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#667eea">
     <meta name="description" content="MJH Jump Frenzy - Unlimited time jumping game with phases, coins, and moving obstacles.">
-    >
-    >
-    /png" sizes="192x192" href="icon-192.png">
-    /png" sizes="512x512" href="icon-512.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <title>🚀 MJH Jump Frenzy - Unlimited Time</title>
     <style>
         * {
@@ -136,7 +136,7 @@
     </style>
 </head>
 <body>
-    anvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <div class="ui-overlay">
         <div id="score">Score: 0</div>
         <div id="highScore">Best: 0</div>
@@ -157,12 +157,12 @@
     </div>
     <div id="guideScreen" class="screen">
         <h2>🎮 সম্পূর্ণ গেম গাইড</h2>
-        <div class="guide-section"><h3>🎯 খেলার উদ্দেশ্য</h3><ul>>সবুজ প্ল্যাটফর্মে ল্যান্ড করে উপরে উঠুন</li>>গোল্ড কয়েন সংগ্রহ করুন (৫০ পয়েন্ট প্রতি কয়েন)</li>><strong>১০০০ পয়েন্ট</strong> = ধাপ জয় → Next Phase</li>>১০ রাউন্ডে ১০ ধাপ করে মোট ১০০ ধাপ খেলুন</li></ul></div>
-        <div class="guide-section"><h3>⌨️ কন্ট্রোল</h3><ul>><strong>player ধরে টেনে</strong> বাম-ডানে মুভ করুন</li>><strong>player-এ চাপ দিলে</strong> জাম্প হবে</li>><strong>মোবাইল:</strong> টাচ-ড্র্যাগ ও ট্যাপ</li>><strong>ডেস্কটপ:</strong> মাউস ড্র্যাগ ও ক্লিক</li></ul></div>
-        <div class="guide-section"><h3>⚠️ সতর্কতা</h3><ul>><strong>লাল বাধায় সরাসরি ধাক্কা = Game Over</strong></li>><strong>হলুদ বল দিয়ে লাল বাধায় আঘাত = ১০ পয়েন্ট</strong></li>>নিচে পড়লে আবার জাম্প করুন</li>>আনলিমিটেড টাইম - অসীম খেলুন</li></ul></div>
-        <div class="guide-section"><h3>📊 UI এলিমেন্টস</h3><ul>><strong>Score:</strong> বর্তমান ধাপের পয়েন্ট</li>><strong>Level:</strong> স্কোরের উপর ভিত্তি করে</li>><strong>Round/Phase:</strong> কোন রাউন্ডের কোন ধাপ</li></ul></div>
-        <div class="guide-section"><h3>🏆 ধাপ সিস্টেম</h3><ul>><strong>রাউন্ড ১ - ধাপ ১:</strong> ১০০০ পয়েন্ট</li>><strong>রাউন্ড ১ - ধাপ ২:</strong> ১৫০০ পয়েন্ট</li>><strong>রাউন্ড ১ - ধাপ ৩:</strong> ২০০০ পয়েন্ট</li>>... মোট ১০ রাউন্ড × ১০ ধাপ = ১০০ ধাপ</li>>প্রতি ধাপে <strong>নতুন খেলার স্টাইল</strong> আসবে</li></ul></div>
-        <div class="guide-section"><h3>💎 টিপস ও ট্রিকস</h3><ul>>হলুদ বল দিয়ে লাল বাধায় আঘাত করুন = ১০ পয়েন্ট</li>>কয়েন সংগ্রহ করুন = ৫০ পয়েন্ট</li>>লাল বাধার বামে-ডানে মুভমেন্ট দেখে জাম্প করুন</li>>প্রতি ধাপ শেষে নতুন চ্যালেঞ্জ আসবে</li>>High Score ভাঙুন!</li></ul></div>
+        <div class="guide-section"><h3>🎯 খেলার উদ্দেশ্য</h3><ul><li>সবুজ প্ল্যাটফর্মে ল্যান্ড করে উপরে উঠুন</li><li>গোল্ড কয়েন সংগ্রহ করুন (৫০ পয়েন্ট প্রতি কয়েন)</li><li><strong>১০০০ পয়েন্ট</strong> = ধাপ জয় → Next Phase</li><li>১০ রাউন্ডে ১০ ধাপ করে মোট ১০০ ধাপ খেলুন</li></ul></div>
+        <div class="guide-section"><h3>⌨️ কন্ট্রোল</h3><ul><li><strong>player ধরে টেনে</strong> বাম-ডানে মুভ করুন</li><li><strong>player-এ চাপ দিলে</strong> জাম্প হবে</li><li><strong>মোবাইল:</strong> টাচ-ড্র্যাগ ও ট্যাপ</li><li><strong>ডেস্কটপ:</strong> মাউস ড্র্যাগ ও ক্লিক</li></ul></div>
+        <div class="guide-section"><h3>⚠️ সতর্কতা</h3><ul><li><strong>লাল বাধায় সরাসরি ধাক্কা = Game Over</strong></li><li><strong>হলুদ বল দিয়ে লাল বাধায় আঘাত = ১০ পয়েন্ট</strong></li><li>নিচে পড়লে আবার জাম্প করুন</li><li>আনলিমিটেড টাইম - অসীম খেলুন</li></ul></div>
+        <div class="guide-section"><h3>📊 UI এলিমেন্টস</h3><ul><li><strong>Score:</strong> বর্তমান ধাপের পয়েন্ট</li><li><strong>Level:</strong> স্কোরের উপর ভিত্তি করে</li><li><strong>Round/Phase:</strong> কোন রাউন্ডের কোন ধাপ</li></ul></div>
+        <div class="guide-section"><h3>🏆 ধাপ সিস্টেম</h3><ul><li><strong>রাউন্ড ১ - ধাপ ১:</strong> ১০০০ পয়েন্ট</li><li><strong>রাউন্ড ১ - ধাপ ২:</strong> ১৫০০ পয়েন্ট</li><li><strong>রাউন্ড ১ - ধাপ ৩:</strong> ২০০০ পয়েন্ট</li><li>... মোট ১০ রাউন্ড × ১০ ধাপ = ১০০ ধাপ</li><li>প্রতি ধাপে <strong>নতুন খেলার স্টাইল</strong> আসবে</li></ul></div>
+        <div class="guide-section"><h3>💎 টিপস ও ট্রিকস</h3><ul><li>হলুদ বল দিয়ে লাল বাধায় আঘাত করুন = ১০ পয়েন্ট</li><li>কয়েন সংগ্রহ করুন = ৫০ পয়েন্ট</li><li>লাল বাধার বামে-ডানে মুভমেন্ট দেখে জাম্প করুন</li><li>প্রতি ধাপ শেষে নতুন চ্যালেঞ্জ আসবে</li><li>High Score ভাঙুন!</li></ul></div>
         <button class="btn" onclick="showStartScreen()" style="margin-top: 30px; background: linear-gradient(45deg, #667eea, #764ba2); color: white;">🏠 ব্যাক টু মেনু</button>
     </div>
     <div id="gameOverScreen" class="screen">
@@ -192,8 +192,37 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         let gameState = 'menu'; let score = 0; let roundScore = 0; let currentRound = 1; let currentPhase = 1; let allTimeHighScore = localStorage.getItem('mjhHighScore') || 0; let level = 1; let gameSpeed = 2.5; let particles = []; let phaseThreshold = 1000; let yellowBall = null; let movingObstacles = []; let draggingPlayer = false; let playerDragOffsetX = 0;
-        const player = { x: 80, y: 300, width: 45, height: 65, dy: 0, jumpPower: -18, grounded: false, color: '#ff6b6b', glow: 0, bob: 0 };
+        const player = { x: 80, y: 300, width: 56, height: 72, dy: 0, jumpPower: -18, grounded: false, glow: 0, bob: 0 };
         let platforms = []; let coins = []; let lastPlatformY = 0; let platformGap = 220;
+        const playerImg = new Image();
+        playerImg.src = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="128" height="160" viewBox="0 0 128 160">
+          <defs>
+            <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.25"/>
+            </filter>
+          </defs>
+          <g filter="url(#s)">
+            <ellipse cx="64" cy="144" rx="22" ry="7" fill="#000" opacity="0.2"/>
+            <path d="M34 78 Q64 56 94 78 L88 132 Q64 146 40 132 Z" fill="#ff5a5f" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M42 86 H86 V112 H42 Z" fill="#4ecdc4" stroke="#ffffff" stroke-width="3" rx="8"/>
+            <circle cx="54" cy="92" r="5" fill="#ffe45c"/>
+            <circle cx="74" cy="92" r="5" fill="#ffe45c"/>
+            <rect x="48" y="114" width="10" height="28" rx="5" fill="#ffffff"/>
+            <rect x="70" y="114" width="10" height="28" rx="5" fill="#ffffff"/>
+            <circle cx="53" cy="146" r="7" fill="#2b2b2b"/>
+            <circle cx="75" cy="146" r="7" fill="#2b2b2b"/>
+            <path d="M28 92 Q18 88 16 76 Q28 74 36 82 Z" fill="#ffd6b0" stroke="#ffffff" stroke-width="2" />
+            <path d="M100 92 Q110 88 112 76 Q100 74 92 82 Z" fill="#ffd6b0" stroke="#ffffff" stroke-width="2" />
+            <circle cx="64" cy="50" r="24" fill="#ffd6b0" stroke="#ffffff" stroke-width="4"/>
+            <path d="M42 46 Q64 20 86 46 Q78 28 64 28 Q50 28 42 46 Z" fill="#6b4f3f"/>
+            <circle cx="56" cy="50" r="4" fill="#2b2b2b"/>
+            <circle cx="72" cy="50" r="4" fill="#2b2b2b"/>
+            <path d="M55 62 Q64 69 73 62" stroke="#2b2b2b" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M44 67 Q64 80 84 67" fill="none" stroke="#ff7b7b" stroke-width="3" stroke-linecap="round"/>
+            <path d="M54 44 Q64 38 74 44" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </svg>`);
         updateHighScoreDisplay();
         function updateHighScoreDisplay() { document.getElementById('highScore').textContent = `Best: ${allTimeHighScore}`; document.getElementById('menuHighScore').textContent = allTimeHighScore; }
         function createParticles(x, y, count = 8) { for (let i = 0; i < count; i++) particles.push({ x, y, vx: (Math.random() - 0.5) * 10, vy: Math.random() * -5, life: 1 }); }
@@ -259,78 +288,14 @@
             updateUIDisplay();
         }
         function updateUIDisplay() { document.getElementById('score').textContent = `Score: ${score}`; document.getElementById('level').textContent = `Level ${level}`; document.getElementById('round').textContent = `Round ${currentRound}`; document.getElementById('phase').textContent = `Phase ${currentPhase}`; }
-        function drawCartoonPlayer() {
-            const x = player.x;
-            const y = player.y;
+        function drawPlayerImage() {
             const w = player.width;
             const h = player.height;
             const bob = Math.sin(player.bob) * 2;
-
             ctx.save();
-            ctx.translate(x + w / 2, y + h / 2 + bob);
-            
-            ctx.shadowColor = '#ffb6c1';
+            ctx.shadowColor = '#ff6b6b';
             ctx.shadowBlur = 20;
-
-            ctx.fillStyle = '#6b4f3f';
-            ctx.beginPath();
-            ctx.ellipse(0, -20, 20, 24, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffd6b0';
-            ctx.beginPath();
-            ctx.arc(0, -28, 14, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(-5, -31, 3, 0, Math.PI * 2);
-            ctx.arc(5, -31, 3, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#2b2b2b';
-            ctx.beginPath();
-            ctx.arc(-5, -31, 1.5, 0, Math.PI * 2);
-            ctx.arc(5, -31, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ff7b7b';
-            ctx.beginPath();
-            ctx.moveTo(-15, -34);
-            ctx.quadraticCurveTo(0, -50, 15, -34);
-            ctx.quadraticCurveTo(8, -42, 0, -40);
-            ctx.quadraticCurveTo(-8, -42, -15, -34);
-            ctx.fill();
-
-            ctx.fillStyle = '#4ecdc4';
-            ctx.beginPath();
-            ctx.roundRect(-16, -13, 32, 26, 8);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffdd55';
-            ctx.beginPath();
-            ctx.roundRect(-13, -9, 10, 10, 3);
-            ctx.roundRect(3, -9, 10, 10, 3);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.roundRect(-11, 7, 8, 19, 4);
-            ctx.roundRect(3, 7, 8, 19, 4);
-            ctx.fill();
-
-            ctx.fillStyle = '#2b2b2b';
-            ctx.beginPath();
-            ctx.arc(-7, 28, 5, 0, Math.PI * 2);
-            ctx.arc(7, 28, 5, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ff9f43';
-            ctx.beginPath();
-            ctx.arc(-18, -8, 5, 0, Math.PI * 2);
-            ctx.arc(18, -8, 5, 0, Math.PI * 2);
-            ctx.fill();
-
+            ctx.drawImage(playerImg, player.x, player.y + bob, w, h);
             ctx.restore();
         }
         function draw() {
@@ -340,7 +305,7 @@
             coins.forEach(coin => { if (!coin.collected) { ctx.save(); ctx.translate(coin.x, coin.y); ctx.rotate(Date.now() * 0.01 + coin.x); ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 20; ctx.fillStyle = coin.color; ctx.beginPath(); ctx.arc(0, 0, coin.radius, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); } });
             movingObstacles.forEach(obstacle => { ctx.shadowColor = '#ff4757'; ctx.shadowBlur = 20; ctx.fillStyle = obstacle.color; ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height); ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height); });
             if (yellowBall) { ctx.save(); ctx.shadowColor = '#ffff00'; ctx.shadowBlur = 15; ctx.fillStyle = '#ffff00'; ctx.fillRect(yellowBall.x, yellowBall.y, yellowBall.width, yellowBall.height); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(yellowBall.x, yellowBall.y, yellowBall.width, yellowBall.height); ctx.restore(); }
-            drawCartoonPlayer();
+            drawPlayerImage();
             particles = particles.filter(p => { p.x += p.vx * 0.1; p.y += p.vy * 0.1; p.vy += 0.15; p.life -= 0.015; return p.life > 0; });
             particles.forEach(p => { ctx.save(); ctx.globalAlpha = p.life; ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 15; ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill(); ctx.restore(); });
             const progress = Math.min(score / phaseThreshold, 1); ctx.fillStyle = 'rgba(255,215,0,0.15)'; ctx.fillRect(20, canvas.height - 60, canvas.width - 40, 20); ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 10; ctx.fillStyle = '#ffd700'; ctx.fillRect(20, canvas.height - 60, (canvas.width - 40) * progress, 20); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center'; ctx.fillText(`${Math.floor(progress*100)}% to Phase ${currentPhase + 1}`, canvas.width/2, canvas.height - 38); ctx.textAlign = 'left';
